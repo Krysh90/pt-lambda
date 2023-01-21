@@ -1,3 +1,4 @@
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { PriceTicker } from '@defichain/whale-api-client/dist/api/prices'
 import BigNumber from 'bignumber.js'
 import { PriceInformation, Token } from './address-information'
@@ -52,4 +53,37 @@ export function gatherPrices(
 function findPrice(prices: PriceTicker[], dexPrices: DexPrices, symbol: string): string | undefined {
   if (symbol === 'DUSD') return dexPrices['DUSD'].denominationPrice
   return prices.find((t) => t.price.token === symbol)?.price.aggregated.amount
+}
+
+export function netTokensFor(tokens: Token[], poolPairs: PoolPairData[]): Token[] {
+  const lmTokens = tokens.filter((t) => t.isLiquidityMiningPair)
+  return sumOrAddToken(
+    tokens.filter((t) => !t.isLiquidityMiningPair),
+    lmTokens
+      .map((lm) =>
+        getNetTokens(
+          new BigNumber(lm.amount),
+          poolPairs.find((pair) => pair.id === lm.id),
+        ),
+      )
+      .reduce((acc, item) => sumOrAddToken(acc, item), []),
+  )
+}
+
+function getNetTokens(amount: BigNumber, poolPair?: PoolPairData): Token[] {
+  if (!poolPair) return []
+  return [
+    {
+      id: poolPair.tokenA.id,
+      symbol: poolPair.tokenA.symbol,
+      amount: amount.dividedBy(poolPair.totalLiquidity.token).multipliedBy(poolPair.tokenA.reserve).toString(),
+      isLiquidityMiningPair: false,
+    },
+    {
+      id: poolPair.tokenB.id,
+      symbol: poolPair.tokenB.symbol,
+      amount: amount.dividedBy(poolPair.totalLiquidity.token).multipliedBy(poolPair.tokenB.reserve).toString(),
+      isLiquidityMiningPair: false,
+    },
+  ]
 }

@@ -2,8 +2,9 @@ import { Status } from './definitions/status'
 import { CrawlInformation } from './definitions/crawl-information'
 import { AddressCrawler } from './crawler/address.crawler'
 import { WhaleClient } from './ocean/whale-client'
-import { gatherPrices, uniqueConcat } from './definitions/address-information.utils'
+import { gatherPrices, netTokensFor, uniqueConcat } from './definitions/address-information.utils'
 import { AddressInformation } from './definitions/address-information'
+import { S3Helper } from './aws/s3-helper'
 
 export async function main(info: CrawlInformation): Promise<Status> {
   const client = new WhaleClient()
@@ -13,13 +14,16 @@ export async function main(info: CrawlInformation): Promise<Status> {
     info.dexPrices,
     uniqueConcat(tokenInfos.addressTokens, tokenInfos.collateral, tokenInfos.loans),
   )
+  const date = new Date().toISOString()
   const addressInfo: AddressInformation = {
     blockHeight: await client.getBlockHeight(),
-    timestamp: new Date().toISOString(),
+    timestamp: date,
     ...tokenInfos,
-    addressNetTokens: [], // TODO
+    addressNetTokens: netTokensFor(tokenInfos.addressTokens, info.poolPairs),
     prices: prices ?? [],
   }
-  console.log(JSON.stringify(addressInfo))
+  const day = date.substring(0, 10)
+  const s3 = new S3Helper()
+  await s3.upload(addressInfo, `${info.address}/${day}.json`)
   return { statusCode: 200 }
 }

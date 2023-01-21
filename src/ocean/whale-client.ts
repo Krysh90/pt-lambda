@@ -1,6 +1,7 @@
 import { ApiPagedResponse, WhaleApiClient } from '@defichain/whale-api-client'
 import { AddressToken } from '@defichain/whale-api-client/dist/api/address'
 import { LoanVaultActive, LoanVaultState } from '@defichain/whale-api-client/dist/api/loan'
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { PriceTicker } from '@defichain/whale-api-client/dist/api/prices'
 
 export class WhaleClient {
@@ -29,6 +30,10 @@ export class WhaleClient {
 
   async getPrices(): Promise<PriceTicker[]> {
     return this.getAll(() => this.client.prices.list(200))
+  }
+
+  async getPoolPairs(): Promise<PoolPairData[]> {
+    return this.getAll(() => this.client.poolpairs.list(200))
   }
 
   private async getAll<T>(call: () => Promise<ApiPagedResponse<T>>, maxAmount: number = -1): Promise<T[]> {
