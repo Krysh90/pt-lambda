@@ -23,7 +23,7 @@ export async function main(info: CrawlInformation): Promise<Status> {
     prices: prices ?? [],
   }
   const day = date.substring(0, 10)
-  const s3 = new S3Helper()
+  const s3 = new S3Helper(info.bucket)
   await s3.upload(addressInfo, `${info.address}/${day}.json`)
   return { statusCode: 200 }
 }

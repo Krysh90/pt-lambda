@@ -6,6 +6,7 @@ export interface CrawlInformation {
   dexPrices: DexPrices
   prices: PriceTicker[]
   poolPairs: PoolPairData[]
+  bucket: BucketInfo
 }
 
 export type DexPrices = Record<string, TokenPrice>
@@ -13,4 +14,9 @@ export type DexPrices = Record<string, TokenPrice>
 export interface TokenPrice {
   token: { id: string; symbol: string }
   denominationPrice: string
+}
+
+export interface BucketInfo {
+  name: string
+  path: string
 }
