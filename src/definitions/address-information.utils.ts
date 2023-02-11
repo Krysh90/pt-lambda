@@ -1,8 +1,7 @@
-import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { PoolPairData, DexPricesResult } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { PriceTicker } from '@defichain/whale-api-client/dist/api/prices'
 import BigNumber from 'bignumber.js'
 import { PriceInformation, Token } from './address-information'
-import { DexPrices } from './crawl-information'
 
 export function toToken({
   id,
@@ -41,7 +40,7 @@ export function uniqueConcat(...tokens: Token[][]): Token[] {
 
 export function gatherPrices(
   prices: PriceTicker[],
-  dexPrices: DexPrices,
+  dexPrices: DexPricesResult,
   tokens?: Token[],
 ): PriceInformation[] | undefined {
   return tokens
@@ -50,8 +49,8 @@ export function gatherPrices(
     .filter((info) => info.usd != null)
 }
 
-function findPrice(prices: PriceTicker[], dexPrices: DexPrices, symbol: string): string | undefined {
-  if (symbol === 'DUSD') return dexPrices['DUSD'].denominationPrice
+function findPrice(prices: PriceTicker[], dexPrices: DexPricesResult, symbol: string): string | undefined {
+  if (symbol === 'DUSD') return dexPrices.dexPrices['DUSD'].denominationPrice
   return prices.find((t) => t.price.token === symbol)?.price.aggregated.amount
 }
 

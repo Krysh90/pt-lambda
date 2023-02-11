@@ -19,15 +19,32 @@ export class S3Helper {
       ACL: 'public-read',
       Body: JSON.stringify(data),
     }
-    console.log('putting to s3: ' + JSON.stringify(params))
+    console.log(`putting ${params.Key} to s3`)
     await this.s3
       .putObject(params, (err, data) => {
         if (err) {
           console.error('error writing object: ' + err)
         } else {
-          console.log('wrote object: ' + JSON.stringify(data))
+          console.log(`wrote ${params.Key} successfully`)
         }
       })
       .promise()
+  }
+
+  async listAddresses(): Promise<string[]> {
+    const params = {
+      Bucket: this.bucket,
+      Key: 'addresses.json',
+    }
+    return await this.s3
+      .getObject(params, (err, data) => {
+        if (err) {
+          console.error('error get objects: ' + err)
+        } else {
+          console.log(`got ${params.Key} successfully`)
+        }
+      })
+      .promise()
+      .then((data) => JSON.parse(data.Body?.toString() ?? '[]') ?? [])
   }
 }

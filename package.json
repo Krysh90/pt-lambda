@@ -1,8 +1,9 @@
 {
   "private": true,
   "scripts": {
-    "get-prices": "ts-node --files src/get-prices.ts",
+    "get-something": "ts-node --files src/helpers-to-be-deleted/get-something.ts",
     "build:crawler": "node build.js",
+    "build:manager": "node build.js",
     "test": "jest --silent"
   },
   "dependencies": {

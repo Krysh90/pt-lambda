@@ -25,7 +25,8 @@ function handleExec(res) {
  */
 async function buildLambda(file) {
   //delete dist before build to ensure no old files exists
-  fs.rmSync('./dist', { force: true, recursive: true })
+  fs.rmSync(`./dist/${file}`, { force: true, recursive: true })
+  fs.rmSync(`./dist/${file}.zip`, { force: true })
   //delete native build in debian of tiny-secp256k1. Which not exist on Windows (and Mac?)
   //then an elliptic binding is used
   fs.rmSync('./node_modules/tiny-secp256k1/build', { force: true, recursive: true })
