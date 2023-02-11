@@ -1,6 +1,7 @@
 export interface AddressInformation {
   timestamp: string
   blockHeight: number
+  address: string
   addressNetTokens: Token[]
   addressTokens: Token[]
   collateral: Token[]

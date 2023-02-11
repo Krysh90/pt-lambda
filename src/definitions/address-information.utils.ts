@@ -22,7 +22,7 @@ export function sumOrAddToken(a: Token[], b: Token[]): Token[] {
   for (const bToken of b) {
     const aToken = a.find((t) => t.id === bToken.id)
     if (aToken) {
-      result.push({ ...aToken, amount: BigNumber.sum(aToken.amount, bToken.amount).toString() })
+      aToken.amount = BigNumber.sum(aToken.amount, bToken.amount).toNumber().toFixed(8)
     } else {
       result.push(bToken)
     }

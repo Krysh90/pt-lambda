@@ -8,6 +8,7 @@ import { S3Helper } from './aws/s3-helper'
 
 export async function main(info: CrawlInformation): Promise<Status> {
   const client = new WhaleClient()
+
   const tokenInfos = await AddressCrawler.create(info.address, client).start()
   const prices = gatherPrices(
     info.prices,
@@ -16,6 +17,7 @@ export async function main(info: CrawlInformation): Promise<Status> {
   )
   const date = new Date().toISOString()
   const addressInfo: AddressInformation = {
+    address: info.address,
     blockHeight: await client.getBlockHeight(),
     timestamp: date,
     ...tokenInfos,
