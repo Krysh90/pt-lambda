@@ -9,7 +9,7 @@ import { S3Helper } from './aws/s3-helper'
 export async function main(info: CrawlInformation): Promise<Status> {
   const client = new WhaleClient()
 
-  const tokenInfos = await AddressCrawler.create(info.address, client).start()
+  const tokenInfos = await AddressCrawler.create(info.address, info.isLOCKUserAddress, info.tokens, client).start()
   const prices = gatherPrices(
     info.prices,
     info.dexPrices,

@@ -8,13 +8,15 @@ export function toToken({
   amount,
   symbolKey,
   isLPS,
+  additionalInformation,
 }: {
   id: string
   amount: string
   symbolKey: string
   isLPS: boolean
+  additionalInformation?: string
 }): Token {
-  return { id: id, amount, symbol: symbolKey, isLiquidityMiningPair: isLPS }
+  return { id: id, amount, symbol: symbolKey, isLiquidityMiningPair: isLPS, additionalInformation }
 }
 
 export function sumOrAddToken(a: Token[], b: Token[]): Token[] {

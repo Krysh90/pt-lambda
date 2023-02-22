@@ -1,4 +1,5 @@
 import { S3 } from 'aws-sdk'
+import { Address } from '../definitions/address'
 import { BucketInfo } from '../definitions/crawl-information'
 
 export class S3Helper {
@@ -31,7 +32,7 @@ export class S3Helper {
       .promise()
   }
 
-  async listAddresses(): Promise<string[]> {
+  async listAddresses(): Promise<Address[]> {
     const params = {
       Bucket: this.bucket,
       Key: 'addresses.json',

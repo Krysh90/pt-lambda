@@ -12,6 +12,7 @@ export async function main(info?: ManagerInformation): Promise<Status> {
   const dexPrices = await client.getDexPrices()
   const prices = await client.getPrices()
   const poolPairs = await client.getPoolPairs()
+  const tokens = await client.getAllTokens()
 
   const s3 = new S3Helper(bucket)
   const addresses = info?.addresses ?? (await s3.listAddresses())
@@ -19,11 +20,13 @@ export async function main(info?: ManagerInformation): Promise<Status> {
   await Promise.all(
     addresses.map((address) => {
       const crawlInfo: CrawlInformation = {
-        address,
+        address: address.address,
+        isLOCKUserAddress: address.isLOCK,
         bucket,
         dexPrices,
         prices,
         poolPairs,
+        tokens,
       }
 
       const lambda = new LambdaHelper()

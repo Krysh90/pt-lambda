@@ -3,6 +3,7 @@ import { AddressToken } from '@defichain/whale-api-client/dist/api/address'
 import { LoanVaultActive, LoanVaultState } from '@defichain/whale-api-client/dist/api/loan'
 import { DexPricesResult, PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { PriceTicker } from '@defichain/whale-api-client/dist/api/prices'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 
 export class WhaleClient {
   private readonly client: WhaleApiClient
@@ -16,6 +17,10 @@ export class WhaleClient {
 
   async getBlockHeight(): Promise<number> {
     return this.client.stats.get().then((data) => data.count.blocks)
+  }
+
+  async getAllTokens(): Promise<TokenData[]> {
+    return this.getAll(() => this.client.tokens.list(200))
   }
 
   async getTokens(address: string): Promise<AddressToken[]> {

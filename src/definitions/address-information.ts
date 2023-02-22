@@ -7,6 +7,7 @@ export interface AddressInformation {
   collateral: Token[]
   loans: Token[]
   prices: PriceInformation[]
+  lockTokens?: Token[]
 }
 
 export interface PriceInformation {
@@ -19,4 +20,5 @@ export interface Token {
   symbol: string
   isLiquidityMiningPair: boolean
   amount: string
+  additionalInformation?: string
 }

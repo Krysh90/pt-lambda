@@ -1,6 +1,8 @@
 import { LoanVaultTokenAmount } from '@defichain/whale-api-client/dist/api/loan'
-import { AddressInformation, Token } from '../definitions/address-information'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
+import { Token } from '../definitions/address-information'
 import { sumOrAddToken, toToken } from '../definitions/address-information.utils'
+import { LOCKClient } from '../LOCK/lock-client'
 import { WhaleClient } from '../ocean/whale-client'
 
 interface VaultInfo {
@@ -10,21 +12,32 @@ interface VaultInfo {
 
 export class AddressCrawler {
   private readonly address: string
+  private readonly isLOCKUserAddress: boolean
+  private readonly tokens: TokenData[]
   private readonly client: WhaleClient
 
-  static create(address: string, client: WhaleClient): AddressCrawler {
-    return new AddressCrawler(address, client)
+  private defaultToken: Token = { id: '-1', symbol: 'not found', isLiquidityMiningPair: false, amount: '0' }
+
+  static create(address: string, isLOCKUserAddress: boolean, tokens: TokenData[], client: WhaleClient): AddressCrawler {
+    return new AddressCrawler(address, isLOCKUserAddress, tokens, client)
   }
 
-  private constructor(address: string, client: WhaleClient) {
+  private constructor(address: string, isLOCKUserAddress: boolean, tokens: TokenData[], client: WhaleClient) {
     this.address = address
+    this.isLOCKUserAddress = isLOCKUserAddress
+    this.tokens = tokens
     this.client = client
   }
 
-  async start(): Promise<{ addressTokens: Token[]; collateral: Token[]; loans: Token[] }> {
+  async start(): Promise<{ addressTokens: Token[]; collateral: Token[]; loans: Token[]; lockTokens?: Token[] }> {
     const addressTokens = await this.retrieveAddressTokens()
     const { collateral, loans } = await this.retrieveVaultTokens()
-    return { addressTokens, collateral, loans }
+    return {
+      addressTokens,
+      collateral,
+      loans,
+      lockTokens: this.isLOCKUserAddress ? await this.retrieveLOCKTokens() : undefined,
+    }
   }
 
   async retrieveAddressTokens(): Promise<Token[]> {
@@ -37,6 +50,21 @@ export class AddressCrawler {
     return vaults
       ?.map((v) => ({ collateral: this.mapToTokens(v.collateralAmounts), loans: this.mapToTokens(v.loanAmounts) }))
       .reduce((acc, item) => this.sumOrAdd(acc, item), { collateral: [], loans: [] })
+  }
+
+  async retrieveLOCKTokens(): Promise<Token[]> {
+    return LOCKClient.getUserBalance(this.address).then((balances) =>
+      balances
+        .filter((b) => b.balance > 0)
+        .map((b) => {
+          const token = this.tokens.find((t) => t.symbolKey === b.asset) ?? this.tokens[0]
+          return toToken({
+            ...token,
+            amount: '' + b.balance,
+            additionalInformation: b.stakingStrategy === 'Masternode' ? 'Staking' : 'Yield Machine',
+          })
+        }),
+    )
   }
 
   mapToTokens(vaultTokens: LoanVaultTokenAmount[]): Token[] {
